@@ -62,7 +62,7 @@
     const flowerSelect = document.getElementById("flowerSelect");
     const placeBtn = document.getElementById("placeFlower");
 
-    const flowerFolder = ""; // keep as "" since your .glb files are in root
+    const flowerFolder = ""; // keep empty since .glb files are in root
     let flowers = [];
 
     const plane = new THREE.Mesh(
@@ -74,9 +74,12 @@
 
     placeBtn.addEventListener("click", () => {
       const modelPath = flowerFolder + flowerSelect.value;
+      console.log("🌼 Loading model:", modelPath);
+
       loader.load(
         modelPath,
         (gltf) => {
+          console.log("✅ Model loaded successfully:", modelPath);
           const flower = gltf.scene;
           flower.scale.set(0.5, 0.5, 0.5);
           flower.position.set(
@@ -90,7 +93,7 @@
         },
         undefined,
         (error) => {
-          console.error("Error loading flower:", error);
+          console.error("❌ Failed to load model:", modelPath, error);
         }
       );
     });
@@ -134,3 +137,4 @@
   </script>
 </body>
 </html>
+
