@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Flower Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    #viewer {
+      width: 600px;
+      height: 500px;
+      margin-bottom: 1rem;
+    }
+
+    select {
+      padding: 8px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌼 Build Your Bouquet</h1>
+
+  <model-viewer 
+    id="viewer"
+    src="flowers/sunflower.glb"
+    alt="3D Flower"
+    auto-rotate
+    camera-controls
+    shadow-intensity="1"
+    exposure="1">
+  </model-viewer>
+
+  <label for="flower-select">Choose a Flower:</label>
+  <select id="flower-select">
+    <option value="sunflower.glb">Sunflower</option>
+    <option value="red_rose.glb">Red Rose</option>
+    <!-- Add more as needed -->
+  </select>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const picker = document.getElementById('flower-select');
+
+    picker.addEventListener('change', () => {
+      viewer.src = `flowers/${picker.value}`;
+    });
+  </script>
+
+</body>
+</html>
