@@ -1,13 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Bouquet Builder</title>
+  <meta charset="UTF-8">
+  <title>3D Bouquet Builder</title>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
     canvas { display: block; }
+
+    #ui {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    select, button {
+      font-size: 16px;
+      padding: 5px;
+    }
   </style>
 </head>
 <body>
+
+  <div id="ui">
+    <label for="flowerSelect">🌸 Choose a Flower:</label>
+    <select id="flowerSelect">
+      <option value="sunflower.glb">Sunflower</option>
+      <option value="red_rose.glb">Red Rose</option>
+    </select>
+    <button id="placeFlower">Place Flower</button>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/OrbitControls.js"></script>
@@ -19,30 +44,80 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    let controls = new THREE.OrbitControls(camera, renderer.domElement);
-    camera.position.set(0, 2, 6);
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    camera.position.set(0, 5, 10);
     controls.update();
 
-    const light = new THREE.HemisphereLight(0xffffff, 0x444444);
-    light.position.set(0, 20, 0);
-    scene.add(light);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 20, 0);
+    scene.add(hemiLight);
 
     const loader = new THREE.GLTFLoader();
-    
-    // Load your first flower
-    loader.load('flowers/sunflower.glb', function(gltf) {
-      const flower = gltf.scene;
-      flower.position.set(0, 0, 0);
-      flower.scale.set(0.5, 0.5, 0.5);
-      scene.add(flower);
+
+    const flowerSelect = document.getElementById("flowerSelect");
+    const placeBtn = document.getElementById("placeFlower");
+
+    const flowerFolder = "flowers/";
+
+    // Ground
+    const planeGeo = new THREE.PlaneGeometry(20, 20);
+    const planeMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f2 });
+    const plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.rotation.x = -Math.PI / 2;
+    plane.name = "ground";
+    scene.add(plane);
+
+    let flowers = [];
+
+    placeBtn.addEventListener("click", () => {
+      const modelPath = flowerFolder + flowerSelect.value;
+      loader.load(modelPath, (gltf) => {
+        const flower = gltf.scene;
+        flower.scale.set(0.5, 0.5, 0.5);
+        flower.position.set(
+          (Math.random() - 0.5) * 6,
+          0,
+          (Math.random() - 0.5) * 6
+        );
+        flower.userData = { rotY: 0 };
+        scene.add(flower);
+        flowers.push(flower);
+      });
     });
 
-    // Ground plane
-    const planeGeometry = new THREE.PlaneGeometry(20, 20);
-    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xdddddd });
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.rotation.x = -Math.PI / 2;
-    scene.add(plane);
+    // Rotation on click, removal on double click
+    window.addEventListener("click", (event) => {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(flowers, true);
+      if (intersects.length > 0) {
+        const flower = intersects[0].object.parent;
+        flower.rotation.y += Math.PI / 8; // Rotate 22.5°
+      }
+    });
+
+    window.addEventListener("dblclick", (event) => {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(flowers, true);
+      if (intersects.length > 0) {
+        const flower = intersects[0].object.parent;
+        scene.remove(flower);
+        flowers = flowers.filter(f => f !== flower);
+      }
+    });
 
     function animate() {
       requestAnimationFrame(animate);
