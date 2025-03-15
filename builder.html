@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3D Bouquet Builder</title>
   <style>
     body {
@@ -41,7 +41,7 @@
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/loaders/GLTFLoader.js';
 
-    console.log("🚀 Script is running");
+    console.log("✅ JavaScript module is running");
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -68,8 +68,7 @@
     const loader = new GLTFLoader();
     const flowerSelect = document.getElementById("flowerSelect");
     const placeBtn = document.getElementById("placeFlower");
-
-    const flowerFolder = ""; // Files are in root
+    const flowerFolder = ""; // your models are in the root
     const flowers = [];
 
     placeBtn.addEventListener("click", () => {
